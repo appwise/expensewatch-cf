@@ -88,13 +88,15 @@
 
 
     <!--- User Details --->
-    <cffunction name="userDetails" access="public" output="false" hint="Get user details" returntype="struct">
+    <cffunction name="userDetails" access="public" output="false" hint="Get user details" >
 	
         <cfargument name="userid" required="true" type="numeric" />
+        <!--- Create Structure--->
         <cfset var resObj = {}>
+
         <cfset returnArray = ArrayNew(1) />
     
-        <cfquery name="getuser" datasource="expense">
+        <cfquery name="getuser" datasource="#Application.dataSourceName#">
           select * from 
           users
           where userid = <cfqueryparam cfsqltype="cf_sql_integer" value="#arguments.userid#">
@@ -104,19 +106,9 @@
             <cfset resObj["success"] = false>
             <cfset resObj["message"] = "Incorrect user id provided.">
         <cfelse>
-            <cfloop query="getuser">
-                <cfset userStruct = StructNew() />
-                <cfset userStruct["id"] = userid />
-                <cfset userStruct["firstname"] = firstname />
-                <cfset userStruct["lastname"] = lastname />
-                <cfset userStruct["email"] = email />
-                <cfset userStruct["lastlogin"] = lastlogin />
-                
-                <cfset ArrayAppend(returnArray,userStruct) />
-            </cfloop>
-
+            
             <cfset resObj["success"] = true>
-            <cfset resObj["data"] = SerializeJSON(returnArray)>
+            <cfset resObj["data"] = {'id': getuser.userid , 'firstname': getuser.firstname, 'lastname': getuser.lastname, 'email': getuser.email, 'lastlogin': getuser.lastlogin}>
 
         </cfif>
 
